@@ -27,8 +27,8 @@ class Listener {
 
         String user = env("ACTIVEMQ_USER", "admin");
         String password = env("ACTIVEMQ_PASSWORD", "admin");
-        String host = env("ACTIVEMQ_HOST", "localhost");
-        int port = Integer.parseInt(env("ACTIVEMQ_PORT", "5672"));
+        String host = env("ACTIVEMQ_SERVICE_HOST", "localhost");
+        int port = Integer.parseInt(env("ACTIVEMQ_PORT_5672_PORT", "5672"));
 
         String connectionURI = "amqp://" + host + ":" + port;
         String destinationName = arg(args, 0, "topic://event");
@@ -40,11 +40,12 @@ class Listener {
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
         Destination destination = null;
-        if (destinationName.startsWith(TOPIC_PREFIX)) {
+        destination = session.createQueue("TEST.FOO");
+       /* if (destinationName.startsWith(TOPIC_PREFIX)) {
             destination = session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
         } else {
             destination = session.createQueue(destinationName);
-        }
+        }*/
 
         MessageConsumer consumer = session.createConsumer(destination);
         long start = System.currentTimeMillis();

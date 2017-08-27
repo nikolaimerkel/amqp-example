@@ -27,8 +27,8 @@ class Publisher {
 
         String user = env("ACTIVEMQ_USER", "admin");
         String password = env("ACTIVEMQ_PASSWORD", "password");
-        String host = env("ACTIVEMQ_HOST", "localhost");
-        int port = Integer.parseInt(env("ACTIVEMQ_PORT", "5672"));
+        String host = env("ACTIVEMQ_SERVICE_HOST", "localhost");
+        int port = Integer.parseInt(env("ACTIVEMQ_PORT_5672_PORT", "5672"));
 
         String connectionURI = "amqp://" + host + ":" + port;
         String destinationName = arg(args, 0, "topic://event");
@@ -50,18 +50,20 @@ class Publisher {
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
         Destination destination = null;
-        if (destinationName.startsWith(TOPIC_PREFIX)) {
+        destination = session.createQueue("TEST.FOO");
+        /*if (destinationName.startsWith(TOPIC_PREFIX)) {
             destination = session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
         } else {
             destination = session.createQueue(destinationName);
-        }
+        }*/
 
         MessageProducer producer = session.createProducer(destination);
-        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
         for (int i = 1; i <= messages; i++) {
             TextMessage msg = session.createTextMessage("#:" + i);
             msg.setIntProperty("id", i);
+
             producer.send(msg);
             if ((i % 1000) == 0) {
                 System.out.println(String.format("Sent %d messages", i));
